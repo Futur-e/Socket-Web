@@ -4,7 +4,6 @@ import { FailMsg, FriendReqMsg, LoginMsg, MsgType, ReceiveMsg, SuccessMsg, WebRt
 import Pubsub from 'pubsub-js'
 import { message, notification } from 'ant-design-vue'
 import { ComponentInternalInstance, getCurrentInstance } from '@vue/runtime-core'
-import ToneCmp from '@/components/ToneCmp.vue'
 import { useRouter } from 'vue-router'
 
 export default function () {
@@ -20,16 +19,8 @@ export default function () {
 
   // 接收聊天信息
   socket.on('chat', (data: ReceiveMsg) => {
-    const toneCmp = proxy?.$refs.toneCmp as typeof ToneCmp
-    toneCmp.playTone()
     Pubsub.publish('chat', data)
 
-    if (data.type === 5) {
-      // 视频邀请
-      Pubsub.publish('videoReq', {
-        senderId: data.talkerId,
-      })
-    }
   })
 
   socket.on('webRTC', (data: WebRtcMsg) => {
@@ -48,9 +39,6 @@ export default function () {
       case 'chat':
         // this.sendMsgSuccess(msg)
         chatHandler(msg as SuccessMsg | FailMsg)
-        break
-      case 'login':
-        LoginHandler(msg as LoginMsg)
         break
       case 'friendRequest':
         friendReqHandler(msg as FriendReqMsg)

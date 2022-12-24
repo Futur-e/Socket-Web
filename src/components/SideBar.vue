@@ -2,37 +2,29 @@
   <div class="side-bar">
     <div class="side-bar-top">
       <div class="avatar">
-        <img :src="store.state.userInfo && store.state.userInfo.avatar" alt="" />
+        <img :src="store.state.userInfo && store.state.userInfo.avatar" alt="" @click="showDiv=!showDiv"/>
+        <div class="menu" v-show="showDiv" @mouseleave="showDiv=false">
+          <div class="menu-item" @click="logout" >退出登录</div>
+          <div class="menu-item" @click="() => {
+            if (proxy !== null) proxy.$refs.addFriendModal.visible = true}">
+            添加好友
+          </div>
+        </div>
       </div>
       <div class="page">
         <div class="page-item" v-for="item in pageList" :key="item.path">
           <i
-            class="iconfont"
-            :class="`${item.icon} ${route.path.indexOf(item.path) !== -1 ? 'current-page' : ''}`"
-            @click="router.push(item.path)"
+              class="iconfont"
+              :class="`${item.icon} ${route.path.indexOf(item.path) !== -1 ? 'current-page' : ''}`"
+              @click="router.push(item.path)"
           ></i>
           <div
-            class="unread-num"
-            v-if="item.path === '/chat'"
-            v-show="store.state.totalUnread != 0"
-            v-text="store.state.totalUnread <= 99 ? store.state.totalUnread : '···'"
+              class="unread-num"
+              v-if="item.path === '/chat'"
+              v-show="store.state.totalUnread != 0"
+              v-text="store.state.totalUnread <= 99 ? store.state.totalUnread : '···'"
           ></div>
         </div>
-      </div>
-    </div>
-    <div class="side-bar-bottom">
-      <div
-        class="bottom-item"
-        @click="
-          () => {
-            if (proxy !== null) proxy.$refs.addFriendModal.visible = true
-          }
-        "
-      >
-        <i class="iconfont icon-jiajianzujianjiahao"></i>
-      </div>
-      <div class="bottom-item">
-        <more-menu><i class="iconfont icon-gengduo"></i></more-menu>
       </div>
     </div>
     <add-friend-modal ref="addFriendModal"></add-friend-modal>
@@ -41,28 +33,45 @@
 
 <script lang="ts">
 import addFriendModal from './addFriendModal.vue'
-import MoreMenu from './MoreMenu.vue'
-import { reactive, toRefs } from '@vue/reactivity'
-import { useStore } from 'vuex'
-import { useRoute, useRouter } from 'vue-router'
-import { ComponentInternalInstance, defineComponent, getCurrentInstance } from '@vue/runtime-core'
+import {reactive, toRefs} from '@vue/reactivity'
+import {useStore} from 'vuex'
+import {useRoute, useRouter} from 'vue-router'
+import {ComponentInternalInstance, defineComponent, getCurrentInstance} from '@vue/runtime-core'
+import {api_logout} from "@/api/user";
+import {message} from "ant-design-vue";
+import {Socket} from "socket.io-client";
+import {ref} from "vue";
 
 export default defineComponent({
-  components: { addFriendModal, MoreMenu },
+  components: {addFriendModal},
   name: 'side-bar',
   // mixins: [sessionList],
   setup() {
+    const showDiv = ref(false)
     const store = useStore()
     const route = useRoute()
     const router = useRouter()
-    const { proxy } = getCurrentInstance() as ComponentInternalInstance
+    const {proxy} = getCurrentInstance() as ComponentInternalInstance
     const state = reactive({
       pageList: [
-        { icon: 'icon-liaotian-fill', path: '/chat', name: 'Chat' },
-        { icon: 'icon-haoyoutuijie', path: '/friend', name: 'Friend' },
-        { icon: 'icon-wenjianjia', path: '/file', name: 'File' },
+        {icon: 'icon-liaotian-fill', path: '/chat', name: 'Chat'},
+        {icon: 'icon-haoyoutuijie', path: '/friend', name: 'Friend'},
       ],
     })
+
+    // 点击退出登录的回调
+    const logout = async () => {
+      let res = await api_logout()
+      if (res) {
+        router.push('/login')
+        message.info('退出登录成功!')
+        // 断开websocket
+        const socket = store.state.socket as Socket
+        socket.disconnect()
+        // socket = null
+        store.commit('setSocket', null)
+      }
+    }
 
     return {
       ...toRefs(state),
@@ -70,6 +79,8 @@ export default defineComponent({
       store,
       route,
       router,
+      showDiv,
+      logout
     }
   },
 })
@@ -90,6 +101,7 @@ export default defineComponent({
 
 .avatar {
   margin-bottom: 25px;
+  position: relative;
 }
 
 .avatar img {
@@ -145,4 +157,31 @@ export default defineComponent({
   line-height: 16px;
   text-align: center;
 }
+
+.menu {
+  border: 1px solid #eee;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  position: absolute;
+  background-color: #fff;
+  width: 120px;
+  font-size: 12px;
+  padding: 3px 0;
+  left: 40px;
+  bottom: 8px;
+  border-radius: 5px;
+  z-index: 1;
+}
+
+.menu-item {
+  border-bottom: 1px solid #eee;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.menu-item:hover {
+  /* background-color: #129611; */
+  background-color: #2495ce;
+  color: white;
+}
+
 </style>

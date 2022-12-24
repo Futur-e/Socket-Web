@@ -5,7 +5,7 @@
       <div class="window-top">
         <div class="top-left">
           <div class="user-name">{{ store.state.currentFriend.userName }}</div>
-          <div class="signature">个性签名(待开发)</div>
+          <div class="signature">个性签名：我最帅</div>
         </div>
         <div class="avatar"><img :src="store.state.currentFriend.avatar" alt="" /></div>
       </div>
@@ -14,12 +14,12 @@
         <div class="middle-item">
           <div class="title">备注</div>
           <!-- <div class="value">{{friendInfo.remark}}</div> -->
-          <div class="value">(待开发)</div>
+          <div class="value">我还是很帅</div>
         </div>
         <div class="middle-item">
           <div class="title">地区</div>
           <!-- <div class="value">{{friendInfo.location}}</div> -->
-          <div class="value">(待开发)</div>
+          <div class="value">我依然很帅</div>
         </div>
         <div class="middle-item">
           <div class="title">ID</div>

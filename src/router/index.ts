@@ -18,17 +18,8 @@ const routes: Array<RouteRecordRaw> = [
     children: [
       { path: '/chat', name: 'chat', component: () => import("../views/Chat.vue") },
       { path: '/friend', name: 'friend', component: () => import("../views/Friend.vue") },
-      { path: '/file', name: 'file', component: () => import("../views/File.vue") },
     ]
   },
-  // {
-  //   path: "/about",
-  //   name: "about",
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   // component: () => import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  // },
 ];
 
 const router = createRouter({

@@ -65,11 +65,6 @@ export default function () {
       case 0:
         index = sessionList.findIndex((item: Session) => item.sessionId === chatMsg.sessionId)
         break;
-
-      // 系统通知
-      case 2:
-        index = sessionList.findIndex((item: Session) => item.receiverId === -1)
-        break;
     }
 
     if (index !== -1) {

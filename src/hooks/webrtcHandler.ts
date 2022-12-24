@@ -1,6 +1,6 @@
 import store from "@/store";
 import { onBeforeMount } from "vue";
-import useWebrtc from './webrtc'
+
 
 import useSubscribe from './subscribe'
 import { WebRtcMsg } from "@/type";
@@ -17,9 +17,6 @@ const rtcCallback = (msg: WebRtcMsg) => {
   switch (msg.type) {
     case 'videoReq':
       reqHandler(msg);
-      break;
-    case 'offer':
-      offerHandler(msg)
       break;
     case 'answer':
       answerHandler(msg)
@@ -42,11 +39,6 @@ const reqHandler = (msg: WebRtcMsg) => {
   }
 }
 
-const offerHandler = async (msg: WebRtcMsg) => {
-  useWebrtc({ mode: 'receiver', type: ['videoCall'] })
-  const pc = store.state.pc;
-  pc?.setRemoteDescription(new RTCSessionDescription(msg.data as RTCSessionDescriptionInit))
-}
 
 const answerHandler = (msg: WebRtcMsg) => {
   const pc = store.state.pc;

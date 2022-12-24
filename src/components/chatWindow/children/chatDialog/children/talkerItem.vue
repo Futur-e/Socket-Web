@@ -9,34 +9,19 @@
       <div class="message-container" v-if="chat?.type == 0">
         <pre class="message" v-html="content"></pre>
       </div>
-      <div
-        class="image"
-        v-else-if="chat.type == 1 || chat.type == 3"
-        @click.right.prevent="rightClickPic($event, chat.content)"
-        :style="imgStyle"
-      >
-        <img :src="chat.content" alt="" @dragstart.prevent @click.stop="checkImg" />
-      </div>
-      <download-card v-else-if="chat.type == 2" :file="chat.content" :fileInfo="fileInfo"></download-card>
-      <div class="message-container message" v-if="chat.type == 5">
-        <i class="iconfont icon-shipin"></i>对方发起了一个视频邀请
-      </div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { transToTag } from '@/utils/utils'
-import DownloadCard from '@/components/DownloadCard.vue'
 
-import Pubsub from 'pubsub-js'
 import { reactive, computed, toRefs, onMounted, defineComponent } from 'vue'
 import { useStore } from 'vuex'
 import { ChatItem, User } from '@/type'
 
 export default defineComponent({
   name: 'talker-item',
-  components: { DownloadCard },
   props: {
     chat: {
       type: Object,
@@ -74,31 +59,9 @@ export default defineComponent({
       }
     })
 
-    // methods
-    // 右键点击图片的回调
-    const rightClickPic = (e: MouseEvent, src: string) => {
-      Pubsub.publish('rightMenu', {
-        position: { x: e.x, y: e.y },
-        menuList: [
-          {
-            content: '收藏至自定义表情',
-            callback: () => {
-              Pubsub.publish('addEmoticon', src)
-            },
-          },
-        ],
-      })
-    }
-
-    const checkImg = (e: MouseEvent) => {
-      Pubsub.publish('viewPicture', e.target)
-    }
-
     return {
       ...toRefs(state),
       ...compute,
-      rightClickPic,
-      checkImg,
     }
   },
 })
@@ -186,8 +149,5 @@ interface State {
 .avatar {
   box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
 }
-.icon-shipin {
-  color: #18191c;
-  margin-right: 5px;
-}
+
 </style>

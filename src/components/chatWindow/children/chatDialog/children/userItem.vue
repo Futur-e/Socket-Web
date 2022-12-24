@@ -10,22 +10,6 @@
         <div class="message-container" v-if="chat.type == 0">
           <pre class="message" v-html="content"></pre>
         </div>
-        <!-- 图片信息 -->
-        <div
-          class="image"
-          v-else-if="chat.type == 1 || chat.type == 3"
-          @click.right.prevent="rightClickPic($event, chat)"
-          :style="imgStyle"
-        >
-          <!-- <img :src="chat.content" alt="" @dragstart.prevent @click.stop="(e)=>{$bus.$emit('viewPicture', e.target)}"> -->
-          <img :src="chat.content" alt="" @dragstart.prevent @click.stop="checkImg" />
-        </div>
-        <!-- 文件信息 -->
-        <download-card v-else-if="chat.type == 2" :file="chat.content" :fileInfo="fileInfo"></download-card>
-        <!-- 视频通话 -->
-        <div class="message-container message" v-if="chat.type == 5">
-          <i class="iconfont icon-shipin"></i>我发起了一个视频通话
-        </div>
       </div>
     </div>
     <div class="avatar"><img :src="store.state.userInfo.avatar" alt="" /></div>
@@ -34,12 +18,9 @@
 
 <script lang="ts">
 import { transToTag } from '@/utils/utils'
-import DownloadCard from '@/components/DownloadCard.vue'
 import Loading from '@/components/Loading.vue'
 
-import Pubsub from 'pubsub-js'
 import { computed, defineComponent, onBeforeUnmount, onMounted, PropType } from 'vue'
-import { message } from 'ant-design-vue'
 
 // import { Chat } from './chatItem'
 import { useStore } from 'vuex'
@@ -47,7 +28,7 @@ import { ChatItem } from '@/type'
 
 export default defineComponent({
   name: 'user-item',
-  components: { DownloadCard, Loading },
+  components: { Loading },
   props: {
     chat: {
       type: Object as PropType<ChatItem>,
@@ -99,25 +80,6 @@ export default defineComponent({
       createTimer()
     }
 
-    // 右键点击图片的回调
-    const rightClickPic = (e: MouseEvent, chat: ChatItem) => {
-      if (chat.status === 'fail' || chat.status === 'loading') {
-        message.info(`图片当前处于${chat.status}阶段, 无法操作`)
-        return
-      }
-      Pubsub.publish('rightMenu', {
-        position: { x: e.x, y: e.y },
-        menuList: [
-          {
-            content: '收藏至自定义表情',
-            callback: () => {
-              Pubsub.publish('addEmoticon', chat.content)
-            },
-          },
-        ],
-      })
-    }
-
     // 设置超时的定时器
     const createTimer = () => {
       if (props.chat.status == 'loading') {
@@ -131,13 +93,8 @@ export default defineComponent({
       }
     }
 
-    const checkImg = (e: MouseEvent) => {
-      Pubsub.publish('viewPicture', e.target)
-    }
 
     return {
-      checkImg,
-      rightClickPic,
       resend,
       ...compute,
       store,

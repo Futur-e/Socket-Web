@@ -27,7 +27,7 @@ import NotificationTag from './children/NotificationTag.vue';
 import ScrollBox from '@/components/ScrollBox.vue';
 import Loading from '@/components/Loading.vue';
 
-import moment from 'moment';
+
 import { reactive, toRefs } from '@vue/reactivity';
 import useSubscribe from '@/hooks/subscribe';
 
@@ -36,11 +36,9 @@ import {
   onMounted,
   nextTick,
   getCurrentInstance,
-  watch,
   onBeforeMount,
   ComponentInternalInstance,
   defineComponent,
-  // ref,
 } from 'vue';
 import { useStore } from 'vuex';
 
@@ -73,8 +71,6 @@ export default defineComponent({
 
     // 生命周期
     onBeforeMount(() => {
-      timeTagFunc = createTimeTag();
-
       useSubscribe([
         // 监听输入框发送的消息
         { msgName: 'sendMsg', callback: sendMsg },
@@ -231,44 +227,6 @@ export default defineComponent({
       return arr;
     };
 
-    // 将本日和本周时间戳闭包
-    const createTimeTag = () => {
-      // 当天0点时间戳
-      let today = moment().startOf('day').valueOf();
-      let thisWeek =
-        moment()
-          .week(moment().week() - 1)
-          .startOf('week')
-          .valueOf() + 86400000;
-
-      return function (item1: ChatItem | ReceiveMsg, item2: ChatItem | ReceiveMsg) {
-        // 间隔超过5分钟显示时间节点标签
-        let updatedAt_item1 = parseInt(item1.updatedAt);
-        let updatedAt_item2 = parseInt(item2.updatedAt);
-        if (updatedAt_item1 - updatedAt_item2 > 5 * 60000) {
-          let time = null;
-          if (updatedAt_item1 > today) time = moment(updatedAt_item1).format('HH:mm');
-          else if (updatedAt_item1 > thisWeek) time = moment(updatedAt_item1).locale('zh-cn').format('dddd HH:mm');
-          else time = moment(updatedAt_item1).format('YYYY年MM月DD日 HH:mm');
-
-          return { content: time, component: 'notification-tag', updatedAt: updatedAt_item1.toString() };
-        }
-      };
-    };
-
-    // watch
-    watch(
-      () => store.state.currentSession,
-      (current) => {
-        state.chatList = [];
-        state.cancelChatListFunc && state.cancelChatListFunc('cancelChatListFunc');
-        if (current.receiverId !== -1) {
-          // receiverId为 -1 时是系统通知
-          getChatList();
-        }
-      },
-    );
-
     return {
       ...toRefs(state),
       getChatList,
@@ -286,7 +244,7 @@ type State = {
 
 <style scoped>
 .chat-dialog {
-  background: url('@/assets/img/chat_background.png') 0 0 no-repeat;
+  background: url('~@/assets/img/chat_background.png') 0 0 no-repeat;
   background-size: 100%;
 }
 
